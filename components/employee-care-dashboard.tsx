@@ -60,7 +60,7 @@ export function EmployeeCareDashboard() {
   const [submitted, setSubmitted] = useState(false)
 
   const openReportForm = () => {
-    setActiveNav('Accueil')
+    setActiveNav('Créer un signalement')
     setSubmitted(false)
     setShowReportForm(true)
   }
@@ -142,18 +142,19 @@ export function EmployeeCareDashboard() {
           </div>
         </section>}
 
-        {showReportForm && activeNav === 'Accueil' && <section className="border-b border-[#dfe3dd] py-10">
+        {showReportForm && activeNav === 'Créer un signalement' && <section className="border-b border-[#dfe3dd] py-10">
           <div className="max-w-3xl">
-            <button type="button" onClick={() => setShowReportForm(false)} className="mb-6 text-[12px] font-semibold text-[#287a55] hover:text-[#173b3f]">← Retour à l&apos;accueil</button>
+            <button type="button" onClick={() => { setShowReportForm(false); setActiveNav('Accueil') }} className="mb-6 text-[12px] font-semibold text-[#287a55] hover:text-[#173b3f]">← Retour à l&apos;accueil</button>
             {submitted ? <div className="border border-[#cbd8ce] bg-[#e4eee7] p-8">
               <CheckCircle2 className="size-7 text-[#287a55]" />
               <h1 className="mt-5 font-serif text-[38px] tracking-[-0.05em] text-[#173b3f]">Signalement envoyé</h1>
               <p className="mt-3 max-w-lg text-[14px] leading-6 text-[#587064]">Votre demande a bien été enregistrée. Vous pourrez suivre son avancement dans « Mes signalements ».</p>
-              <Button type="button" onClick={() => setShowReportForm(false)} className="mt-6 rounded-md bg-[#173b3f] text-white hover:bg-[#24575a]">Voir mon espace</Button>
+              <Button type="button" onClick={() => { setShowReportForm(false); setActiveNav('Accueil') }} className="mt-6 rounded-md bg-[#173b3f] text-white hover:bg-[#24575a]">Voir mon espace</Button>
             </div> : <form onSubmit={handleSubmit} className="border border-[#dfe3dd] bg-white p-6 md:p-8">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Nouveau signalement</p>
               <h1 className="mt-3 font-serif text-[40px] tracking-[-0.05em] text-[#173b3f]">Que souhaitez-vous signaler ?</h1>
-              <p className="mt-3 text-[14px] leading-6 text-[#66736f]">Décrivez la situation avec le plus de précision possible. Vos informations resteront confidentielles.</p>
+              <p className="mt-3 text-[14px] leading-6 text-[#66736f]">Choisissez le niveau d&apos;accès adapté à votre situation, puis décrivez les faits avec précision.</p>
+              <fieldset className="mt-8"><legend className="text-[13px] font-semibold text-[#173b3f]">Type de signalement</legend><div className="mt-3 grid gap-3 md:grid-cols-3"><label className="cursor-pointer border border-[#cbd8ce] bg-[#f7f5f0] p-4 has-[:checked]:border-[#287a55] has-[:checked]:bg-[#e4eee7]"><input required type="radio" name="report-type" value="ordinaire" className="sr-only" /><span className="font-semibold text-[#173b3f]">Ordinaire</span><span className="mt-1 block text-xs leading-5 text-[#66736f]">Pour les problèmes du quotidien.</span></label><label className="cursor-pointer border border-[#cbd8ce] bg-[#f7f5f0] p-4 has-[:checked]:border-[#287a55] has-[:checked]:bg-[#e4eee7]"><input type="radio" name="report-type" value="confidentiel" className="sr-only" /><span className="font-semibold text-[#173b3f]">Confidentiel</span><span className="mt-1 block text-xs leading-5 text-[#66736f]">Accès limité aux personnes habilitées.</span></label><label className="cursor-pointer border border-[#cbd8ce] bg-[#f7f5f0] p-4 has-[:checked]:border-[#287a55] has-[:checked]:bg-[#e4eee7]"><input type="radio" name="report-type" value="anonyme" className="sr-only" /><span className="font-semibold text-[#173b3f]">Anonyme</span><span className="mt-1 block text-xs leading-5 text-[#66736f]">Votre identité n&apos;est pas communiquée.</span></label></div></fieldset>
               <div className="mt-8 grid gap-5 md:grid-cols-2">
                 <label className="grid gap-2 text-[13px] font-semibold text-[#173b3f]">Catégorie<select required className="h-11 rounded-md border border-[#cbd8ce] bg-[#f7f5f0] px-3 font-normal text-[#202824] outline-none focus:border-[#287a55]"><option value="">Sélectionner une catégorie</option><option>Conditions de travail</option><option>Informatique</option><option>Relations au travail</option><option>Harcèlement ou discrimination</option><option>Suggestions et améliorations</option></select></label>
                 <label className="grid gap-2 text-[13px] font-semibold text-[#173b3f]">Niveau de confidentialité<select required className="h-11 rounded-md border border-[#cbd8ce] bg-[#f7f5f0] px-3 font-normal text-[#202824] outline-none focus:border-[#287a55]"><option>Visible par les personnes habilitées</option><option>Confidentiel</option><option>Anonyme</option></select></label>
