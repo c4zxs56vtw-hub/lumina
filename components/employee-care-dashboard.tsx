@@ -56,6 +56,19 @@ export function EmployeeCareDashboard() {
   const [activeNav, setActiveNav] = useState('Accueil')
   const [showNotifications, setShowNotifications] = useState(false)
   const [mobileMenu, setMobileMenu] = useState(false)
+  const [showReportForm, setShowReportForm] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+
+  const openReportForm = () => {
+    setActiveNav('Accueil')
+    setSubmitted(false)
+    setShowReportForm(true)
+  }
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setSubmitted(true)
+  }
 
   return (
     <div className="min-h-screen bg-[#f7f5f0] text-[#202824]">
@@ -125,11 +138,34 @@ export function EmployeeCareDashboard() {
             <div className="relative flex items-start justify-between"><div className="flex size-10 items-center justify-center rounded-full bg-[#287a55] text-white"><Plus className="size-5" /></div><span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#287a55]">Nouveau</span></div>
             <h2 className="relative mt-12 text-[21px] font-semibold tracking-[-0.03em] text-[#173b3f]">Un problème à signaler ?</h2>
             <p className="relative mt-2 max-w-[260px] text-[13px] leading-5 text-[#587064]">Quelques minutes suffisent pour nous aider à comprendre et agir.</p>
-            <Button className="relative mt-5 rounded-md bg-[#173b3f] px-4 text-sm text-white hover:bg-[#24575a]">Créer un signalement <ArrowUpRight data-icon="inline-end" /></Button>
+            <Button type="button" onClick={openReportForm} className="relative mt-5 rounded-md bg-[#173b3f] px-4 text-sm text-white hover:bg-[#24575a]">Créer un signalement <ArrowUpRight data-icon="inline-end" /></Button>
           </div>
         </section>}
 
-        {activeNav === 'Accueil' && <section className="grid gap-12 py-12 lg:grid-cols-[1fr_330px]">
+        {showReportForm && activeNav === 'Accueil' && <section className="border-b border-[#dfe3dd] py-10">
+          <div className="max-w-3xl">
+            <button type="button" onClick={() => setShowReportForm(false)} className="mb-6 text-[12px] font-semibold text-[#287a55] hover:text-[#173b3f]">← Retour à l&apos;accueil</button>
+            {submitted ? <div className="border border-[#cbd8ce] bg-[#e4eee7] p-8">
+              <CheckCircle2 className="size-7 text-[#287a55]" />
+              <h1 className="mt-5 font-serif text-[38px] tracking-[-0.05em] text-[#173b3f]">Signalement envoyé</h1>
+              <p className="mt-3 max-w-lg text-[14px] leading-6 text-[#587064]">Votre demande a bien été enregistrée. Vous pourrez suivre son avancement dans « Mes signalements ».</p>
+              <Button type="button" onClick={() => setShowReportForm(false)} className="mt-6 rounded-md bg-[#173b3f] text-white hover:bg-[#24575a]">Voir mon espace</Button>
+            </div> : <form onSubmit={handleSubmit} className="border border-[#dfe3dd] bg-white p-6 md:p-8">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Nouveau signalement</p>
+              <h1 className="mt-3 font-serif text-[40px] tracking-[-0.05em] text-[#173b3f]">Que souhaitez-vous signaler ?</h1>
+              <p className="mt-3 text-[14px] leading-6 text-[#66736f]">Décrivez la situation avec le plus de précision possible. Vos informations resteront confidentielles.</p>
+              <div className="mt-8 grid gap-5 md:grid-cols-2">
+                <label className="grid gap-2 text-[13px] font-semibold text-[#173b3f]">Catégorie<select required className="h-11 rounded-md border border-[#cbd8ce] bg-[#f7f5f0] px-3 font-normal text-[#202824] outline-none focus:border-[#287a55]"><option value="">Sélectionner une catégorie</option><option>Conditions de travail</option><option>Informatique</option><option>Relations au travail</option><option>Harcèlement ou discrimination</option><option>Suggestions et améliorations</option></select></label>
+                <label className="grid gap-2 text-[13px] font-semibold text-[#173b3f]">Niveau de confidentialité<select required className="h-11 rounded-md border border-[#cbd8ce] bg-[#f7f5f0] px-3 font-normal text-[#202824] outline-none focus:border-[#287a55]"><option>Visible par les personnes habilitées</option><option>Confidentiel</option><option>Anonyme</option></select></label>
+              </div>
+              <label className="mt-5 grid gap-2 text-[13px] font-semibold text-[#173b3f]">Objet<input required placeholder="Ex. Une situation qui nécessite votre attention" className="h-11 rounded-md border border-[#cbd8ce] bg-[#f7f5f0] px-3 font-normal text-[#202824] outline-none placeholder:text-[#8a9590] focus:border-[#287a55]" /></label>
+              <label className="mt-5 grid gap-2 text-[13px] font-semibold text-[#173b3f]">Décrivez la situation<textarea required rows={5} placeholder="Que s&apos;est-il passé ? Quand et où ?" className="resize-none rounded-md border border-[#cbd8ce] bg-[#f7f5f0] px-3 py-3 font-normal leading-6 text-[#202824] outline-none placeholder:text-[#8a9590] focus:border-[#287a55]" /></label>
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><Button type="button" onClick={() => setShowReportForm(false)} variant="outline" className="rounded-md border-[#cbd8ce] text-[#173b3f]">Annuler</Button><Button type="submit" className="rounded-md bg-[#173b3f] text-white hover:bg-[#24575a]">Envoyer le signalement <ArrowUpRight data-icon="inline-end" /></Button></div>
+            </form>}
+          </div>
+        </section>}
+
+        {activeNav === 'Accueil' && !showReportForm && <section className="grid gap-12 py-12 lg:grid-cols-[1fr_330px]">
           <div>
             <div className="mb-6 flex items-end justify-between"><div><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Votre activité</p><h2 className="mt-2 font-serif text-[32px] tracking-[-0.04em] text-[#173b3f]">Vos signalements</h2></div><button className="hidden items-center gap-2 text-[13px] font-semibold text-[#287a55] hover:text-[#173b3f] sm:flex">Voir tout <ChevronRight className="size-4" /></button></div>
             <div className="divide-y divide-[#dfe3dd] border-y border-[#dfe3dd]">{reports.map((report) => { const Icon = report.icon; return <button key={report.id} className="group flex w-full items-center gap-4 py-5 text-left transition-colors hover:bg-[#eef1ec] sm:gap-5"><span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${report.tone === 'progress' ? 'bg-[#f5e8cf] text-[#a86412]' : report.tone === 'resolved' ? 'bg-[#dcebe1] text-[#287a55]' : 'bg-[#e8ebe6] text-[#66736f]'}`}><Icon className="size-[17px]" strokeWidth={1.8} /></span><span className="min-w-0 flex-1"><span className="flex flex-wrap items-center gap-x-3 gap-y-1"><span className="truncate text-[14px] font-semibold text-[#202824]">{report.title}</span><span className="text-[11px] font-medium text-[#8a9590]">{report.id}</span></span><span className="mt-1 block text-[12px] text-[#66736f]">{report.category} <span className="mx-1 text-[#b7c0ba]">·</span> {report.date}</span></span><span className={`hidden text-right text-[12px] font-medium sm:block ${report.tone === 'progress' ? 'text-[#a86412]' : report.tone === 'resolved' ? 'text-[#287a55]' : 'text-[#66736f]'}`}>{report.status}</span><ChevronRight className="size-4 shrink-0 text-[#a0aaa4] transition-transform group-hover:translate-x-1" /></button> })}</div>
