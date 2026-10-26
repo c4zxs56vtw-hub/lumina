@@ -28,6 +28,7 @@ const reports = [
     title: 'Connexion Internet instable',
     category: 'Informatique',
     date: '12 juin 2024',
+    dateValue: 20240612,
     status: 'En cours de traitement',
     tone: 'progress',
     icon: Wifi,
@@ -37,6 +38,7 @@ const reports = [
     title: 'Climatisation du bureau 3B',
     category: 'Conditions de travail',
     date: '05 juin 2024',
+    dateValue: 20240605,
     status: 'Résolu',
     tone: 'resolved',
     icon: CheckCircle2,
@@ -46,6 +48,7 @@ const reports = [
     title: 'Suggestion — espace de pause',
     category: 'Suggestions et améliorations',
     date: '28 mai 2024',
+    dateValue: 20240528,
     status: 'Clôturé',
     tone: 'closed',
     icon: Sparkles,
@@ -60,7 +63,10 @@ export function EmployeeCareDashboard() {
   const [submitted, setSubmitted] = useState(false)
   const [reportSearch, setReportSearch] = useState('')
   const [reportStatus, setReportStatus] = useState('Tous les statuts')
+  const [reportCategory, setReportCategory] = useState('Toutes les catégories')
   const [reportSort, setReportSort] = useState('recent')
+  const [reportPage, setReportPage] = useState(1)
+  const [selectedReport, setSelectedReport] = useState<string | null>(null)
   const [reportType, setReportType] = useState('ordinaire')
 
   const visibleReports = useMemo(() => {
@@ -69,15 +75,23 @@ export function EmployeeCareDashboard() {
       .filter((report) => {
         const matchesSearch = !query || `${report.title} ${report.id} ${report.category}`.toLowerCase().includes(query)
         const matchesStatus = reportStatus === 'Tous les statuts' || report.status === reportStatus
-        return matchesSearch && matchesStatus
+        const matchesCategory = reportCategory === 'Toutes les catégories' || report.category === reportCategory
+        return matchesSearch && matchesStatus && matchesCategory
       })
-      .sort((a, b) => reportSort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id))
+      .sort((a, b) => reportSort === 'oldest' ? a.dateValue - b.dateValue : b.dateValue - a.dateValue)
   }, [reportSearch, reportSort, reportStatus])
 
   const openReportForm = () => {
     setActiveNav('Créer un signalement')
+    setSelectedReport(null)
     setSubmitted(false)
     setShowReportForm(true)
+  }
+
+  const openReportDetail = (id: string) => {
+    setSelectedReport(id)
+    setShowReportForm(false)
+    setActiveNav('Détail du signalement')
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -183,9 +197,9 @@ export function EmployeeCareDashboard() {
 
         {activeNav === 'Accueil' && !showReportForm && <section className="grid gap-12 py-12 lg:grid-cols-[1fr_330px]">
           <div>
-            <div className="mb-6 flex items-end justify-between"><div><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Votre activité</p><h2 className="mt-2 font-serif text-[32px] tracking-[-0.04em] text-[#173b3f]">Vos signalements</h2></div><button className="hidden items-center gap-2 text-[13px] font-semibold text-[#287a55] hover:text-[#173b3f] sm:flex">Voir tout <ChevronRight className="size-4" /></button></div>
+            <div className="mb-6 flex items-end justify-between"><div><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Votre activité</p><h2 className="mt-2 font-serif text-[32px] tracking-[-0.04em] text-[#173b3f]">Vos signalements</h2></div><button type="button" onClick={() => setActiveNav('Mes signalements')} className="hidden items-center gap-2 text-[13px] font-semibold text-[#287a55] hover:text-[#173b3f] sm:flex">Voir tout <ChevronRight className="size-4" /></button></div>
             <div className="divide-y divide-[#dfe3dd] border-y border-[#dfe3dd]">{reports.map((report) => { const Icon = report.icon; return <button key={report.id} className="group flex w-full items-center gap-4 py-5 text-left transition-colors hover:bg-[#eef1ec] sm:gap-5"><span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${report.tone === 'progress' ? 'bg-[#f5e8cf] text-[#a86412]' : report.tone === 'resolved' ? 'bg-[#dcebe1] text-[#287a55]' : 'bg-[#e8ebe6] text-[#66736f]'}`}><Icon className="size-[17px]" strokeWidth={1.8} /></span><span className="min-w-0 flex-1"><span className="flex flex-wrap items-center gap-x-3 gap-y-1"><span className="truncate text-[14px] font-semibold text-[#202824]">{report.title}</span><span className="text-[11px] font-medium text-[#8a9590]">{report.id}</span></span><span className="mt-1 block text-[12px] text-[#66736f]">{report.category} <span className="mx-1 text-[#b7c0ba]">·</span> {report.date}</span></span><span className={`hidden text-right text-[12px] font-medium sm:block ${report.tone === 'progress' ? 'text-[#a86412]' : report.tone === 'resolved' ? 'text-[#287a55]' : 'text-[#66736f]'}`}>{report.status}</span><ChevronRight className="size-4 shrink-0 text-[#a0aaa4] transition-transform group-hover:translate-x-1" /></button> })}</div>
-            <button className="mt-5 flex items-center gap-2 text-[13px] font-semibold text-[#287a55] sm:hidden">Voir tous les signalements <ChevronRight className="size-4" /></button>
+            <button type="button" onClick={() => setActiveNav('Mes signalements')} className="mt-5 flex items-center gap-2 text-[13px] font-semibold text-[#287a55] sm:hidden">Voir tous les signalements <ChevronRight className="size-4" /></button>
           </div>
 
           <aside className="border-l border-[#dfe3dd] pl-0 lg:pl-9"><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">À savoir</p><div className="mt-5 flex gap-3"><LockKeyhole className="mt-0.5 size-5 shrink-0 text-[#287a55]" strokeWidth={1.8} /><div><h3 className="text-[15px] font-semibold text-[#173b3f]">Vos informations sont protégées</h3><p className="mt-2 text-[13px] leading-6 text-[#66736f]">Votre signalement est visible uniquement par les personnes habilitées à le traiter. Vous choisissez le niveau de confidentialité adapté à votre situation.</p><button className="mt-4 flex items-center gap-2 text-[12px] font-semibold text-[#287a55]">Comprendre la confidentialité <ArrowUpRight className="size-3.5" /></button></div></div><div className="mt-10 border-t border-[#dfe3dd] pt-6"><div className="flex items-center gap-3"><Headphones className="size-5 text-[#173b3f]" strokeWidth={1.8} /><span className="text-[14px] font-semibold text-[#173b3f]">Besoin d'aide ?</span></div><p className="mt-2 text-[13px] leading-6 text-[#66736f]">Consultez les ressources internes ou contactez votre référent.</p><button className="mt-3 flex items-center gap-2 text-[12px] font-semibold text-[#287a55]">Accéder aux ressources <ChevronRight className="size-3.5" /></button></div></aside>
@@ -197,14 +211,16 @@ export function EmployeeCareDashboard() {
             <div><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Votre activité</p><h1 className="mt-3 font-serif text-[42px] tracking-[-0.05em] text-[#173b3f]">Mes signalements</h1><p className="mt-4 max-w-xl text-[15px] leading-7 text-[#66736f]">Retrouvez ici l&apos;historique de vos demandes et leur état d&apos;avancement.</p></div>
             <Button type="button" onClick={openReportForm} className="w-fit rounded-md bg-[#173b3f] text-white hover:bg-[#24575a]"><Plus data-icon="inline-start" /> Nouveau signalement</Button>
           </div>
-          <div className="mt-8 grid gap-3 border-y border-[#dfe3dd] py-4 md:grid-cols-[1fr_190px_180px]">
+          <div className="mt-8 grid gap-3 border-y border-[#dfe3dd] py-4 md:grid-cols-[1fr_190px_190px_180px]">
             <label className="relative"><span className="sr-only">Rechercher un signalement</span><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a9590]" /><input value={reportSearch} onChange={(event) => setReportSearch(event.target.value)} placeholder="Rechercher par mot-clé ou identifiant" className="h-10 w-full rounded-md border border-[#cbd8ce] bg-white pl-9 pr-3 text-sm text-[#202824] outline-none placeholder:text-[#8a9590] focus:border-[#287a55]" /></label>
             <label><span className="sr-only">Filtrer par statut</span><select value={reportStatus} onChange={(event) => setReportStatus(event.target.value)} className="h-10 w-full rounded-md border border-[#cbd8ce] bg-white px-3 text-sm text-[#202824] outline-none focus:border-[#287a55]"><option>Tous les statuts</option><option>En cours de traitement</option><option>Résolu</option><option>Clôturé</option></select></label>
+            <label><span className="sr-only">Filtrer par catégorie</span><select value={reportCategory} onChange={(event) => { setReportCategory(event.target.value); setReportPage(1) }} className="h-10 w-full rounded-md border border-[#cbd8ce] bg-white px-3 text-sm text-[#202824] outline-none focus:border-[#287a55]"><option>Toutes les catégories</option><option>Informatique</option><option>Conditions de travail</option><option>Suggestions et améliorations</option></select></label>
             <label><span className="sr-only">Trier les signalements</span><select value={reportSort} onChange={(event) => setReportSort(event.target.value)} className="h-10 w-full rounded-md border border-[#cbd8ce] bg-white px-3 text-sm text-[#202824] outline-none focus:border-[#287a55]"><option value="recent">Date : plus récente</option><option value="oldest">Date : plus ancienne</option></select></label>
           </div>
-          <div className="divide-y divide-[#dfe3dd] border-b border-[#dfe3dd]">{visibleReports.length > 0 ? visibleReports.map((report) => { const Icon = report.icon; return <button type="button" key={report.id} onClick={() => { setActiveNav('Créer un signalement'); setShowReportForm(true); setSubmitted(false) }} className="group flex w-full items-center gap-4 py-5 text-left transition-colors hover:bg-[#eef1ec] sm:gap-5"><span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${report.tone === 'progress' ? 'bg-[#f5e8cf] text-[#a86412]' : report.tone === 'resolved' ? 'bg-[#dcebe1] text-[#287a55]' : 'bg-[#e8ebe6] text-[#66736f]'}`}><Icon className="size-[17px]" /></span><span className="min-w-0 flex-1"><span className="flex flex-wrap items-center gap-x-3 gap-y-1"><span className="truncate font-semibold text-[#202824]">{report.title}</span><span className="text-[11px] font-medium text-[#8a9590]">{report.id}</span></span><span className="mt-1 block text-xs text-[#66736f]">{report.category} <span className="mx-1 text-[#b7c0ba]">·</span> {report.date}</span></span><span className={`hidden text-right text-xs font-medium sm:block ${report.tone === 'progress' ? 'text-[#a86412]' : report.tone === 'resolved' ? 'text-[#287a55]' : 'text-[#66736f]'}`}>{report.status}</span><ChevronRight className="size-4 shrink-0 text-[#a0aaa4] transition-transform group-hover:translate-x-1" /></button> }) : <div className="py-12 text-center"><Search className="mx-auto size-6 text-[#8a9590]" /><p className="mt-3 text-sm font-semibold text-[#173b3f]">Aucun signalement trouvé</p><p className="mt-1 text-sm text-[#66736f]">Modifiez votre recherche ou vos filtres.</p></div>}</div>
+          <div className="divide-y divide-[#dfe3dd] border-b border-[#dfe3dd]">{visibleReports.length > 0 ? visibleReports.map((report) => { const Icon = report.icon; return <button type="button" key={report.id} onClick={() => openReportDetail(report.id)} className="group flex w-full items-center gap-4 py-5 text-left transition-colors hover:bg-[#eef1ec] sm:gap-5"><span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${report.tone === 'progress' ? 'bg-[#f5e8cf] text-[#a86412]' : report.tone === 'resolved' ? 'bg-[#dcebe1] text-[#287a55]' : 'bg-[#e8ebe6] text-[#66736f]'}`}><Icon className="size-[17px]" /></span><span className="min-w-0 flex-1"><span className="flex flex-wrap items-center gap-x-3 gap-y-1"><span className="truncate font-semibold text-[#202824]">{report.title}</span><span className="text-[11px] font-medium text-[#8a9590]">{report.id}</span></span><span className="mt-1 block text-xs text-[#66736f]">{report.category} <span className="mx-1 text-[#b7c0ba]">·</span> {report.date}</span></span><span className={`hidden text-right text-xs font-medium sm:block ${report.tone === 'progress' ? 'text-[#a86412]' : report.tone === 'resolved' ? 'text-[#287a55]' : 'text-[#66736f]'}`}>{report.status}</span><ChevronRight className="size-4 shrink-0 text-[#a0aaa4] transition-transform group-hover:translate-x-1" /></button> }) : <div className="py-12 text-center"><Search className="mx-auto size-6 text-[#8a9590]" /><p className="mt-3 text-sm font-semibold text-[#173b3f]">Aucun signalement trouvé</p><p className="mt-1 text-sm text-[#66736f]">Modifiez votre recherche ou vos filtres.</p></div>}</div>
           <p className="mt-4 text-xs text-[#8a9590]">{visibleReports.length} signalement{visibleReports.length > 1 ? 's' : ''} affiché{visibleReports.length > 1 ? 's' : ''}</p>
         </section>}
+        {activeNav === 'Détail du signalement' && selectedReport && (() => { const report = reports.find((item) => item.id === selectedReport) ?? reports[0]; return <section className="border-y border-[#dfe3dd] py-12"><button type="button" onClick={() => setActiveNav('Mes signalements')} className="mb-8 text-[12px] font-semibold text-[#287a55] hover:text-[#173b3f]">← Retour à mes signalements</button><div className="grid gap-10 lg:grid-cols-[1fr_320px]"><div><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Suivi du signalement · {report.id}</p><h1 className="mt-3 max-w-2xl font-serif text-[42px] leading-tight tracking-[-0.05em] text-[#173b3f]">{report.title}</h1><p className="mt-4 text-[14px] text-[#66736f]">{report.category} · Créé le {report.date}</p><div className="mt-10 border-y border-[#dfe3dd] py-7"><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Description</p><p className="mt-3 max-w-2xl text-[15px] leading-7 text-[#202824]">La situation a été transmise à l&apos;équipe concernée. Cet espace rassemble les mises à jour, les échanges et les prochaines étapes de traitement.</p></div><div className="mt-10"><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Évolution du traitement</p><div className="mt-5 border-l border-[#b8c9bd] pl-6"><div className="relative pb-7"><span className="absolute -left-[31px] top-1 size-2.5 rounded-full bg-[#287a55]" /><p className="text-sm font-semibold text-[#173b3f]">Signalement reçu</p><p className="mt-1 text-xs text-[#66736f]">{report.date} · Votre demande a été enregistrée.</p></div><div className="relative pb-7"><span className="absolute -left-[31px] top-1 size-2.5 rounded-full bg-[#287a55]" /><p className="text-sm font-semibold text-[#173b3f]">Pris en charge</p><p className="mt-1 text-xs text-[#66736f]">Un référent analyse actuellement votre demande.</p></div><div className="relative"><span className="absolute -left-[31px] top-1 size-2.5 rounded-full border-2 border-[#a86412] bg-[#f7f5f0]" /><p className="text-sm font-semibold text-[#a86412]">{report.status}</p><p className="mt-1 text-xs text-[#66736f]">Une nouvelle mise à jour vous sera communiquée ici.</p></div></div></div><div className="mt-10 border-t border-[#dfe3dd] pt-7"><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Échanges</p><div className="mt-4 border border-[#dfe3dd] bg-white p-5"><p className="text-sm leading-6 text-[#202824]">Bonjour, votre demande est bien prise en compte. Nous revenons vers vous dès que notre analyse est terminée.</p><p className="mt-3 text-xs text-[#8a9590]">Équipe EmployeeCare · aujourd&apos;hui</p></div><textarea rows={3} placeholder="Écrire un message au responsable" className="mt-3 w-full resize-none border border-[#cbd8ce] bg-[#f7f5f0] px-3 py-3 text-sm outline-none focus:border-[#287a55]" /><Button type="button" className="mt-3 rounded-md bg-[#173b3f] text-white hover:bg-[#24575a]">Envoyer un message</Button></div></div><aside className="h-fit border-l border-[#dfe3dd] pl-0 lg:pl-8"><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Statut actuel</p><p className="mt-4 text-lg font-semibold text-[#a86412]">{report.status}</p><div className="mt-8 border-t border-[#dfe3dd] pt-6"><p className="text-sm font-semibold text-[#173b3f]">Prochaine étape</p><p className="mt-2 text-sm leading-6 text-[#66736f]">Le responsable poursuit l&apos;instruction et vous notifiera de la prochaine décision.</p></div>{report.status === 'Résolu' && <Button type="button" className="mt-7 w-full rounded-md bg-[#287a55] text-white hover:bg-[#226646]">Confirmer la résolution</Button>}</aside></div></section> })()}
         {activeNav === 'Ressources' && <section className="border-y border-[#dfe3dd] py-12">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Centre d&apos;aide</p>
           <h1 className="mt-3 font-serif text-[42px] tracking-[-0.05em] text-[#173b3f]">Ressources</h1>
