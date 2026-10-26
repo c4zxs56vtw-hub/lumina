@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   ArrowUpRight,
   Bell,
@@ -58,6 +58,20 @@ export function EmployeeCareDashboard() {
   const [mobileMenu, setMobileMenu] = useState(false)
   const [showReportForm, setShowReportForm] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [reportSearch, setReportSearch] = useState('')
+  const [reportStatus, setReportStatus] = useState('Tous les statuts')
+  const [reportSort, setReportSort] = useState('recent')
+
+  const visibleReports = useMemo(() => {
+    const query = reportSearch.trim().toLowerCase()
+    return reports
+      .filter((report) => {
+        const matchesSearch = !query || `${report.title} ${report.id} ${report.category}`.toLowerCase().includes(query)
+        const matchesStatus = reportStatus === 'Tous les statuts' || report.status === reportStatus
+        return matchesSearch && matchesStatus
+      })
+      .sort((a, b) => reportSort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id))
+  }, [reportSearch, reportSort, reportStatus])
 
   const openReportForm = () => {
     setActiveNav('Créer un signalement')
@@ -178,10 +192,17 @@ export function EmployeeCareDashboard() {
 
         {activeNav === 'Accueil' && null}
         {activeNav === 'Mes signalements' && <section className="border-y border-[#dfe3dd] py-12">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Votre activité</p>
-          <h1 className="mt-3 font-serif text-[42px] tracking-[-0.05em] text-[#173b3f]">Mes signalements</h1>
-          <p className="mt-4 max-w-xl text-[15px] leading-7 text-[#66736f]">Retrouvez ici l&apos;historique de vos demandes et leur état d&apos;avancement.</p>
-          <div className="mt-8 divide-y divide-[#dfe3dd] border-y border-[#dfe3dd]">{reports.map((report) => { const Icon = report.icon; return <div key={report.id} className="flex items-center gap-4 py-5"><span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#e8ebe6] text-[#287a55]"><Icon className="size-[17px]" /></span><div className="min-w-0 flex-1"><p className="font-semibold text-[#202824]">{report.title}</p><p className="mt-1 text-xs text-[#66736f]">{report.id} · {report.category} · {report.date}</p></div><span className="hidden text-xs font-medium text-[#287a55] sm:block">{report.status}</span></div> })}</div>
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Votre activité</p><h1 className="mt-3 font-serif text-[42px] tracking-[-0.05em] text-[#173b3f]">Mes signalements</h1><p className="mt-4 max-w-xl text-[15px] leading-7 text-[#66736f]">Retrouvez ici l&apos;historique de vos demandes et leur état d&apos;avancement.</p></div>
+            <Button type="button" onClick={openReportForm} className="w-fit rounded-md bg-[#173b3f] text-white hover:bg-[#24575a]"><Plus data-icon="inline-start" /> Nouveau signalement</Button>
+          </div>
+          <div className="mt-8 grid gap-3 border-y border-[#dfe3dd] py-4 md:grid-cols-[1fr_190px_180px]">
+            <label className="relative"><span className="sr-only">Rechercher un signalement</span><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a9590]" /><input value={reportSearch} onChange={(event) => setReportSearch(event.target.value)} placeholder="Rechercher par mot-clé ou identifiant" className="h-10 w-full rounded-md border border-[#cbd8ce] bg-white pl-9 pr-3 text-sm text-[#202824] outline-none placeholder:text-[#8a9590] focus:border-[#287a55]" /></label>
+            <label><span className="sr-only">Filtrer par statut</span><select value={reportStatus} onChange={(event) => setReportStatus(event.target.value)} className="h-10 w-full rounded-md border border-[#cbd8ce] bg-white px-3 text-sm text-[#202824] outline-none focus:border-[#287a55]"><option>Tous les statuts</option><option>En cours de traitement</option><option>Résolu</option><option>Clôturé</option></select></label>
+            <label><span className="sr-only">Trier les signalements</span><select value={reportSort} onChange={(event) => setReportSort(event.target.value)} className="h-10 w-full rounded-md border border-[#cbd8ce] bg-white px-3 text-sm text-[#202824] outline-none focus:border-[#287a55]"><option value="recent">Date : plus récente</option><option value="oldest">Date : plus ancienne</option></select></label>
+          </div>
+          <div className="divide-y divide-[#dfe3dd] border-b border-[#dfe3dd]">{visibleReports.length > 0 ? visibleReports.map((report) => { const Icon = report.icon; return <button type="button" key={report.id} onClick={() => { setActiveNav('Créer un signalement'); setShowReportForm(true); setSubmitted(false) }} className="group flex w-full items-center gap-4 py-5 text-left transition-colors hover:bg-[#eef1ec] sm:gap-5"><span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${report.tone === 'progress' ? 'bg-[#f5e8cf] text-[#a86412]' : report.tone === 'resolved' ? 'bg-[#dcebe1] text-[#287a55]' : 'bg-[#e8ebe6] text-[#66736f]'}`}><Icon className="size-[17px]" /></span><span className="min-w-0 flex-1"><span className="flex flex-wrap items-center gap-x-3 gap-y-1"><span className="truncate font-semibold text-[#202824]">{report.title}</span><span className="text-[11px] font-medium text-[#8a9590]">{report.id}</span></span><span className="mt-1 block text-xs text-[#66736f]">{report.category} <span className="mx-1 text-[#b7c0ba]">·</span> {report.date}</span></span><span className={`hidden text-right text-xs font-medium sm:block ${report.tone === 'progress' ? 'text-[#a86412]' : report.tone === 'resolved' ? 'text-[#287a55]' : 'text-[#66736f]'}`}>{report.status}</span><ChevronRight className="size-4 shrink-0 text-[#a0aaa4] transition-transform group-hover:translate-x-1" /></button> }) : <div className="py-12 text-center"><Search className="mx-auto size-6 text-[#8a9590]" /><p className="mt-3 text-sm font-semibold text-[#173b3f]">Aucun signalement trouvé</p><p className="mt-1 text-sm text-[#66736f]">Modifiez votre recherche ou vos filtres.</p></div>}</div>
+          <p className="mt-4 text-xs text-[#8a9590]">{visibleReports.length} signalement{visibleReports.length > 1 ? 's' : ''} affiché{visibleReports.length > 1 ? 's' : ''}</p>
         </section>}
         {activeNav === 'Ressources' && <section className="border-y border-[#dfe3dd] py-12">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]">Centre d&apos;aide</p>
