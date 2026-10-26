@@ -129,10 +129,10 @@ export function EmployeeCareDashboard() {
         {activeNav === 'Accueil' && <section className="grid items-end gap-10 border-b border-[#dfe3dd] pb-12 lg:grid-cols-[1fr_360px]">
           <div>
             <p className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#66736f]"><span className="size-1.5 rounded-full bg-[#287a55]" />Espace personnel</p>
-            <h1 className="max-w-[680px] font-serif text-[clamp(2.7rem,6vw,5.25rem)] leading-[0.96] tracking-[-0.065em] text-[#173b3f]">Bonjour Paul,<br /><em className="font-normal text-[#287a55]">que pouvons-nous</em><br />faire pour vous ?</h1>
+            <h1 className="max-w-[620px] font-serif text-[clamp(2.45rem,5.2vw,4.5rem)] leading-[0.98] tracking-[-0.06em] text-[#173b3f]">Bonjour Paul,<br /><em className="font-normal text-[#287a55]">que pouvons-nous</em><br />faire pour vous ?</h1>
             <p className="mt-7 max-w-[500px] text-[15px] leading-7 text-[#66736f]">Signalez une situation, suivez vos demandes et retrouvez les réponses de votre entreprise au même endroit.</p>
           </div>
-          <div className="relative overflow-hidden border border-[#cbd8ce] bg-[#e4eee7] p-6 lg:mb-1">
+          <div className="relative overflow-hidden border-2 border-[#287a55] bg-[#e4eee7] p-7 shadow-[0_12px_28px_rgba(40,122,85,0.10)] lg:mb-1">
             <div className="absolute -right-8 -top-8 size-28 rounded-full border border-[#b6cdbd]" />
             <div className="absolute -right-3 -top-3 size-14 rounded-full border border-[#b6cdbd]" />
             <div className="relative flex items-start justify-between"><div className="flex size-10 items-center justify-center rounded-full bg-[#287a55] text-white"><Plus className="size-5" /></div><span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#287a55]">Nouveau</span></div>
